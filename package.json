@@ -1,0 +1,11 @@
+{
+    "private": "true",
+    "scripts": {
+        "postinstall": "dotnet tool restore",
+        "start": "dotnet fable watch src/App -o dist --exclude Sutil.CompilerPlugins --run vite",
+        "publish": "dotnet fsi build.fsx publish"
+    },
+    "devDependencies": {
+        "vite": "^3.1.6"
+    }
+}

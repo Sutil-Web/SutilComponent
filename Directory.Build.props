@@ -1,0 +1,27 @@
+<Project>
+    <!-- NuGet Metadata -->
+    <PropertyGroup>
+        <PackageProjectUrl>https://fable.io</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Sutil-Web/SutilComponent</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>logo-small.png</PackageIcon>
+        <PackageTags>fsharp;fable;fable-javascript;javascript;f#;js;sutil</PackageTags>
+        <Authors>Sutil contributors</Authors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!-- For SourceLink. See: https://github.com/dotnet/sourcelink#using-source-link-in-net-projects -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)\logo-small.png" Pack="true" Visible="false" PackagePath="" />
+        <None Include="$(MSBuildThisFileDirectory)\LICENSE" Visible="false" Pack="true" PackagePath="" />
+        <None Include="$(MSBuildThisFileDirectory)\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    </ItemGroup>
+</Project>

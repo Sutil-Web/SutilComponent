@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="SutilComponentExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="*.fsproj; *.fs" PackagePath="fable\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Sutil" Version="1.0.0-beta-019" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sutil.CompilerPlugins\Sutil.CompilerPlugins.fsproj" />
+  </ItemGroup>
+
+</Project>
