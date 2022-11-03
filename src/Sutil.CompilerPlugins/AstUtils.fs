@@ -19,6 +19,14 @@ let (|CallInfoMemberRef|_|) (info: Fable.CallInfo) =
     //     Some(entFullName, memb.Info.Name)
     | _ -> None
 
+let (|CallInfoArgs|) (info: Fable.CallInfo) = info.Args
+
+let (|StringConstOrTemplate|_|) (expr: Fable.Expr) =
+    match expr with
+    | Fable.Value(Fable.StringConstant s, _) -> Some([s], [])
+    | Fable.Value(Fable.StringTemplate(_, parts, values), _) -> Some(parts, values)
+    | _ -> None
+
 let rec (|MaybeCasted|) = function
     | Fable.TypeCast(MaybeCasted e,_) -> e
     | e -> e
@@ -49,6 +57,10 @@ let makeValue r value =
 
 let makeStrConst (x: string) =
     Fable.StringConstant x
+    |> makeValue None
+
+let makeArray (xs: Fable.Expr list) =
+    Fable.NewArray(Fable.ArrayValues xs, Fable.Any, Fable.MutableArray)
     |> makeValue None
 
 let nullValue = Fable.Expr.Value(Fable.ValueKind.Null(Fable.Type.Any), None)

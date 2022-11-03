@@ -1,15 +1,29 @@
 namespace Sutil
 
-open System.Text.RegularExpressions
 open Fable
 open Fable.AST
 open Fable.AST.Fable
+open System.Text.RegularExpressions
 
 open AstUtils
 
 // Tell Fable to scan for plugins in this assembly
 [<assembly: ScanForPlugins>]
 do ()
+
+module internal SutilComponentHelpers =
+    let callSutilFunction (compiler: PluginHelper) r t fileName functionName args =
+        let reg = Regex($@"Sutil\.\d.*?\/{fileName}$", RegexOptions.IgnoreCase)
+        let importPath =
+            compiler.SourceFiles
+            |> Seq.tryFind reg.IsMatch
+            |> Option.defaultWith (fun () ->
+                compiler.LogError("Cannot find Sutil/Bindings source file", ?range = r)
+                "../Sutil/" + fileName)
+        let callee = makeImport functionName importPath
+        makeTypedCall t callee args
+
+open SutilComponentHelpers
 
 type SutilComponentAttribute() =
     inherit MemberDeclarationPluginAttribute()
@@ -65,38 +79,26 @@ type SutilComponentAttribute() =
                 expr
 
             elif signals.Count > 0 then
-                compiler.SourceFiles
-                |> Seq.tryFind (fun f -> Regex.IsMatch(f, @"Sutil\.\d.*?\/Bindings.fs$"))
-                |> function
-                    | None ->
-                        compiler.LogError("Cannot find Sutil/Bindings source file", ?range = expr.Range)
-                        expr
-                    | Some importPath ->
-                        let suffix, bindArgs, bindBody =
-                            if signals.Count = 1 then
-                                "", Seq.head signals.Values, expr
-                            else
-                                let mutable idx = -1
-                                let bindArgs = makeUniqueName "bind" |> makeIdent
+                let suffix, bindArgs, bindBody =
+                    if signals.Count = 1 then
+                        "", Seq.head signals.Values, expr
+                    else
+                        let mutable idx = -1
+                        let bindArgs = makeUniqueName "bind" |> makeIdent
 
-                                string signals.Count,
-                                bindArgs,
-                                signals.Values
-                                |> Seq.fold
-                                    (fun body ident ->
-                                        idx <- idx + 1
-                                        Let(ident, Get(IdentExpr bindArgs, TupleIndex idx, ident.Type, None), body))
-                                    expr
+                        string signals.Count,
+                        bindArgs,
+                        signals.Values
+                        |> Seq.fold
+                            (fun body ident ->
+                                idx <- idx + 1
+                                Let(ident, Get(IdentExpr bindArgs, TupleIndex idx, ident.Type, None), body))
+                            expr
 
-                        let callee = makeImport $"bindElement{suffix}" importPath
-
-                        let args =
-                            [
-                                yield! signals |> Seq.map (fun kv -> IdentExpr kv.Key)
-                                Lambda(bindArgs, bindBody, None)
-                            ]
-
-                        makeTypedCall expr.Type callee args
+                callSutilFunction compiler expr.Range expr.Type "Bindings.fs" $"bindElement{suffix}" [
+                    yield! signals |> Seq.map (fun kv -> IdentExpr kv.Key)
+                    Lambda(bindArgs, bindBody, None)
+                ]
             else
                 expr
 
