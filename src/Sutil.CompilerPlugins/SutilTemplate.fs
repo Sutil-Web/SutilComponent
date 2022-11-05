@@ -71,9 +71,11 @@ module private SutilTemplateHelpers =
             let mutable idx = m.Index + m.Length
 
             let prev = str.[prevIdx .. m.Index - 1]
+            // Trying to emulate React/HTML behaviour here but not entirely sure how we should do the trimming
             let prev = if isFirstChild then prev.TrimStart() else softTrimStart prev
             let prev = if isCloseTag then prev.TrimEnd() else softTrimEnd prev
-            if prev.Length > 0 then
+
+            if not(System.String.IsNullOrWhiteSpace(prev)) then
                 yield ElSuccess(m.Index, TextEl prev)
 
             if isCloseTag then
